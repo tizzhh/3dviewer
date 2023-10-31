@@ -7,7 +7,7 @@ output S21_ParserFirstReadFile(char* path, int* count_of_vertexes,
   output res = OK;
   while ((ch = fgetc(file)) != EOF) {
     if (ch == 'v' || ch == 'f' || ch == ' ' || ch == '.' || ch == '-' ||
-        ch == '\n' || ch == '/' || (ch >= '0' && ch <= '9')) {
+        ch == '\n' || ch == '/' || (ch >= '0' && ch <= '9') || ch == '\r') {
       if (ch == 'v')
         ++(*count_of_vertexes);
       else if (ch == 'f')
@@ -22,13 +22,10 @@ output S21_ParserFirstReadFile(char* path, int* count_of_vertexes,
 }
 
 size_t S21_ParserCountOFVertexesInStr(char* str) {
-  size_t count_of_vertexes = 0, move = 0;
-  while (*str != '\0') {
-    ++move;
+  size_t count_of_vertexes = 1;
+  while (*str != '\0')
     if (*(str)++ == ' ') ++count_of_vertexes;
-  }
-  *str -= move;
-  return count_of_vertexes + 1;
+  return count_of_vertexes;
 }
 
 // const char* ParserCreateFormat(int vertex_num) {
@@ -45,11 +42,23 @@ size_t S21_ParserCountOFVertexesInStr(char* str) {
 
 size_t S21_ParserCountOfChars(char* str) {
   size_t result = 0;
-  while (*(str)++ != ' ' || *(str)++ != '\0') ++result;
-  return result;
+  while (*str >= '0' && *str <= '9') {
+    ++result;
+    ++str;
+  }
+  return result + 1;
 }
 
 void S21_ParserSecondReadFile(char* path, data* data) {
+  data->matrix_3d.rows = data->count_of_vertexes;
+  data->matrix_3d.cols = 3;
+  data->matrix_3d.matrix = calloc(data->matrix_3d.rows, sizeof(double*));
+  for (int i = 0; i < data->matrix_3d.rows; ++i) {
+    data->matrix_3d.matrix[i] = calloc(data->matrix_3d.cols, sizeof(double));
+  }
+
+  data->polygons = calloc(data->count_of_facets, sizeof(polygon_t));
+
   FILE* file = fopen(path, "r");
   char* str;
   size_t len = 0, count_of_vertexes = 0, count_of_polygons = 0;
@@ -58,27 +67,28 @@ void S21_ParserSecondReadFile(char* path, data* data) {
     sscanf(str, "%c", &mode);
     if (mode == 'v') {
       str += 2;
-      for (size_t i = 0; i != 3; ++i)
-        sscanf(str, "%lf", &data->matrix_3d.matrix[count_of_vertexes][i]);
+      sscanf(str, "%lf%lf%lf", &data->matrix_3d.matrix[count_of_vertexes][0],
+             &data->matrix_3d.matrix[count_of_vertexes][1],
+             &data->matrix_3d.matrix[count_of_vertexes][2]);
       ++count_of_vertexes;
     } else {
 #define vert_in_fac \
   data->polygons[count_of_polygons].numbers_of_vertexes_in_facets
       str += 2;
-      vert_in_fac = ParserCountOFVertexesInStr(str);
+      vert_in_fac = S21_ParserCountOFVertexesInStr(str);
       data->polygons[count_of_polygons].vertexes =
           calloc(vert_in_fac, sizeof(int));
       for (int i = 0; i != vert_in_fac; ++i) {
         sscanf(str, "%d", &data->polygons[count_of_polygons].vertexes[i]);
-        str += ParserCountOfChars(str);
+        str += S21_ParserCountOfChars(str);
       }
       ++count_of_polygons;
     }
   }
 }
 
-void S21_Translation(matrix_t* vertices, double move_x, double move_y,
-                     double move_z) {
+int S21_Translation(matrix_t* vertices, double move_x, double move_y,
+                    double move_z) {
   if (!vertices) {
     return ERROR;
   }
@@ -89,7 +99,7 @@ void S21_Translation(matrix_t* vertices, double move_x, double move_y,
   }
 }
 
-void S21_Rotation(matrix_t* vertices, axis axis, double angle) {
+int S21_Rotation(matrix_t* vertices, axis axis, double angle) {
   if (!vertices) {
     return ERROR;
   }
@@ -115,8 +125,8 @@ void S21_Rotation(matrix_t* vertices, axis axis, double angle) {
   }
 }
 
-void S21_Scaling(matrix_t* vertices, double mult_x, double mult_y,
-                 double mult_z) {
+int S21_Scaling(matrix_t* vertices, double mult_x, double mult_y,
+                double mult_z) {
   if (!vertices) {
     return ERROR;
   }
@@ -127,4 +137,4 @@ void S21_Scaling(matrix_t* vertices, double mult_x, double mult_y,
   }
 }
 
-int main() {}
+// int main() {}

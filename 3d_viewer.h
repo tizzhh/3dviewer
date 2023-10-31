@@ -33,10 +33,10 @@ size_t S21_ParserCountOfChars(char* str);
 size_t S21_ParserCountOFVertexesInStr(char* str);
 
 // AFFINE
-void S21_Translation(matrix_t* vertices, double move_x, double move_y,
-                     double move_z);
-void S21_Rotation(matrix_t* vertices, axis axis, double angle);
-void S21_Scaling(matrix_t* vertices, double mult_x, double mult_y,
-                 double mult_z);
+int S21_Translation(matrix_t* vertices, double move_x, double move_y,
+                    double move_z);
+int S21_Rotation(matrix_t* vertices, axis axis, double angle);
+int S21_Scaling(matrix_t* vertices, double mult_x, double mult_y,
+                double mult_z);
 
 #endif  // C8_3DVIEWER_V1_SRC_3D_VIEWER_H
