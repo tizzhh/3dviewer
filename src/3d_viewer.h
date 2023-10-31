@@ -34,11 +34,10 @@ size_t S21_ParserCountOFVertexesInStr(char* str);
 output S21_PrepareData(char* path, data* data);
 
 // AFFINE
-int S21_Translation(matrix_t* vertices, double move_x, double move_y,
-                    double move_z);
-int S21_Rotation(matrix_t* vertices, axis axis, double angle);
-int S21_Scaling(matrix_t* vertices, double mult_x, double mult_y,
-                double mult_z);
+int S21_Translate(matrix_t* vertices, double move_x, double move_y,
+                  double move_z);
+int S21_Rotate(matrix_t* vertices, axis axis, double angle);
+int S21_Scale(matrix_t* vertices, double mult_x, double mult_y, double mult_z);
 void S21_RemoveMatrix(matrix_t* matrix);
 void S21_RemovePolygons(polygon_t* polygons, int count_of_polygons);
 

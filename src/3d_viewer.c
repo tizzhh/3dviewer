@@ -98,8 +98,8 @@ output S21_PrepareData(char* path, data* data) {
   return status;
 }
 
-int S21_Translation(matrix_t* vertices, double move_x, double move_y,
-                    double move_z) {
+int S21_Translate(matrix_t* vertices, double move_x, double move_y,
+                  double move_z) {
   if (!vertices) {
     return ERROR;
   }
@@ -110,7 +110,10 @@ int S21_Translation(matrix_t* vertices, double move_x, double move_y,
   }
 }
 
-int S21_Rotation(matrix_t* vertices, axis axis, double angle) {
+int S21_Rotate(matrix_t* vertices, axis axis, double angle) {
+  double temp_x;
+  double temp_y;
+  double temp_z;
   if (!vertices) {
     return ERROR;
   }
@@ -118,33 +121,32 @@ int S21_Rotation(matrix_t* vertices, axis axis, double angle) {
   double cos_val = cos(angle);
   for (int i = 0; i < vertices->rows; ++i) {
     if (axis == OX) {
-      vertices->matrix[i][OY] =
-          vertices->matrix[i][OY] * cos_val - vertices->matrix[i][OZ] * sin_val;
-      vertices->matrix[i][OZ] =
-          vertices->matrix[i][OY] * sin_val + vertices->matrix[i][OZ] * cos_val;
+      temp_y = vertices->matrix[i][OY];
+      temp_z = vertices->matrix[i][OZ];
+      vertices->matrix[i][OY] = temp_y * cos_val - temp_z * sin_val;
+      vertices->matrix[i][OZ] = temp_y * sin_val + temp_z * cos_val;
     } else if (axis == OY) {
-      vertices->matrix[i][OX] =
-          vertices->matrix[i][OX] * cos_val + vertices->matrix[i][OZ] * sin_val;
-      vertices->matrix[i][OZ] = -vertices->matrix[i][OX] * sin_val +
-                                vertices->matrix[i][OZ] * cos_val;
+      temp_x = vertices->matrix[i][OX];
+      temp_z = vertices->matrix[i][OZ];
+      vertices->matrix[i][OX] = temp_x * cos_val + temp_z * sin_val;
+      vertices->matrix[i][OZ] = -temp_x * sin_val + temp_z * cos_val;
     } else if (axis == OZ) {
-      vertices->matrix[i][OX] =
-          vertices->matrix[i][OX] * cos_val - vertices->matrix[i][OY] * sin_val;
-      vertices->matrix[i][OY] =
-          vertices->matrix[i][OX] * sin_val + vertices->matrix[i][OY] * cos_val;
+      temp_x = vertices->matrix[i][OX];
+      temp_y = vertices->matrix[i][OY];
+      vertices->matrix[i][OX] = temp_x * cos_val - temp_y * sin_val;
+      vertices->matrix[i][OY] = temp_x * sin_val + temp_y * cos_val;
     }
   }
 }
 
-int S21_Scaling(matrix_t* vertices, double mult_x, double mult_y,
-                double mult_z) {
+int S21_Scale(matrix_t* vertices, double mult_x, double mult_y, double mult_z) {
   if (!vertices) {
     return ERROR;
   }
   for (int i = 0; i < vertices->rows; ++i) {
     vertices->matrix[i][OX] = vertices->matrix[i][OX] * mult_x;
-    vertices->matrix[i][OY] = vertices->matrix[i][OY] + mult_y;
-    vertices->matrix[i][OZ] = vertices->matrix[i][OZ] + mult_z;
+    vertices->matrix[i][OY] = vertices->matrix[i][OY] * mult_y;
+    vertices->matrix[i][OZ] = vertices->matrix[i][OZ] * mult_z;
   }
 }
 
