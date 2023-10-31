@@ -7,21 +7,22 @@
 START_TEST(test_parser_1) {
   char *file_name = "test_objs/cube.obj";
   data cube_data = {0};
-  output first_parse = S21_ParserFirstReadFile(
-      file_name, &cube_data.count_of_vertexes, &cube_data.count_of_facets);
+  output first_parse = S21_PrepareData(file_name, &cube_data);
+  // output first_parse = S21_ParserFirstReadFile(
+  //     file_name, &cube_data.count_of_vertexes, &cube_data.count_of_facets);
   ck_assert_int_eq(first_parse, OK);
-  S21_ParserSecondReadFile(file_name, &cube_data);
+  // S21_ParserSecondReadFile(file_name, &cube_data);
   matrix_t parsed_data = cube_data.matrix_3d;
-  float vertexex[] = {1.0, -1.0, -1.0, 1.0,  -1.0, 1.0,  -1.0, -1.0,
+  float vertexes[] = {1.0, -1.0, -1.0, 1.0,  -1.0, 1.0,  -1.0, -1.0,
                       1.0, -1.0, -1.0, -1.0, 1.0,  1.0,  -1.0, 1.0,
                       1.0, 1.0,  -1.0, 1.0,  1.0,  -1.0, 1.0,  -1.0};
 
-  for (int i = 0; i < (sizeof(vertexex) / sizeof(vertexex[0]) / 3); ++i) {
-    ck_assert_double_eq_tol(parsed_data.matrix[i][OX], vertexex[i * 3],
+  for (int i = 0; i < (sizeof(vertexes) / sizeof(vertexes[0]) / 3); ++i) {
+    ck_assert_double_eq_tol(parsed_data.matrix[i][OX], vertexes[i * 3],
                             TOLERANCE);
-    ck_assert_double_eq_tol(parsed_data.matrix[i][OY], vertexex[i * 3 + 1],
+    ck_assert_double_eq_tol(parsed_data.matrix[i][OY], vertexes[i * 3 + 1],
                             TOLERANCE);
-    ck_assert_double_eq_tol(parsed_data.matrix[i][OZ], vertexex[i * 3 + 2],
+    ck_assert_double_eq_tol(parsed_data.matrix[i][OZ], vertexes[i * 3 + 2],
                             TOLERANCE);
   }
 
@@ -34,6 +35,9 @@ START_TEST(test_parser_1) {
       ck_assert_int_eq(facetes_data[i].vertexes[j], facets[i * 3 + j]);
     }
   }
+
+  S21_RemoveMatrix(&cube_data.matrix_3d);
+  S21_RemovePolygons(cube_data.polygons, cube_data.count_of_facets);
 }
 
 int main(void) {

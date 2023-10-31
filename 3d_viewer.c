@@ -50,19 +50,11 @@ size_t S21_ParserCountOfChars(char* str) {
 }
 
 void S21_ParserSecondReadFile(char* path, data* data) {
-  data->matrix_3d.rows = data->count_of_vertexes;
-  data->matrix_3d.cols = 3;
-  data->matrix_3d.matrix = calloc(data->matrix_3d.rows, sizeof(double*));
-  for (int i = 0; i < data->matrix_3d.rows; ++i) {
-    data->matrix_3d.matrix[i] = calloc(data->matrix_3d.cols, sizeof(double));
-  }
-
-  data->polygons = calloc(data->count_of_facets, sizeof(polygon_t));
-
   FILE* file = fopen(path, "r");
-  char* str;
+  char* getline_str = NULL;
   size_t len = 0, count_of_vertexes = 0, count_of_polygons = 0;
-  while (getline(&str, &len, file) != -1) {
+  while (getline(&getline_str, &len, file) != -1) {
+    char* str = getline_str;
     char mode;
     sscanf(str, "%c", &mode);
     if (mode == 'v') {
@@ -85,6 +77,25 @@ void S21_ParserSecondReadFile(char* path, data* data) {
       ++count_of_polygons;
     }
   }
+  free(getline_str);
+  fclose(file);
+}
+
+output S21_PrepareData(char* path, data* data) {
+  output status = S21_ParserFirstReadFile(path, &data->count_of_vertexes,
+                                          &data->count_of_facets);
+  if (status == OK) {
+    data->matrix_3d.rows = data->count_of_vertexes;
+    data->matrix_3d.cols = 3;
+    data->matrix_3d.matrix = calloc(data->matrix_3d.rows, sizeof(double*));
+    for (int i = 0; i < data->matrix_3d.rows; ++i) {
+      data->matrix_3d.matrix[i] = calloc(data->matrix_3d.cols, sizeof(double));
+    }
+
+    data->polygons = calloc(data->count_of_facets, sizeof(polygon_t));
+    S21_ParserSecondReadFile(path, data);
+  }
+  return status;
 }
 
 int S21_Translation(matrix_t* vertices, double move_x, double move_y,
@@ -134,6 +145,27 @@ int S21_Scaling(matrix_t* vertices, double mult_x, double mult_y,
     vertices->matrix[i][OX] = vertices->matrix[i][OX] * mult_x;
     vertices->matrix[i][OY] = vertices->matrix[i][OY] + mult_y;
     vertices->matrix[i][OZ] = vertices->matrix[i][OZ] + mult_z;
+  }
+}
+
+void S21_RemoveMatrix(matrix_t* matrix) {
+  if (matrix && matrix->matrix) {
+    for (int i = 0; i < matrix->rows; ++i) {
+      free(matrix->matrix[i]);
+    }
+    free(matrix->matrix);
+    matrix->matrix = NULL;
+    matrix->rows = 0;
+    matrix->cols = 0;
+  }
+}
+
+void S21_RemovePolygons(polygon_t* polygons, int count_of_polygons) {
+  if (polygons && polygons->vertexes) {
+    for (int i = 0; i < count_of_polygons; ++i) {
+      free(polygons[i].vertexes);
+    }
+    free(polygons);
   }
 }
 
