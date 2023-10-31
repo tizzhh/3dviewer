@@ -82,6 +82,7 @@ void S21_ParserSecondReadFile(char* path, data* data) {
 }
 
 output S21_PrepareData(char* path, data* data) {
+  if (!data) return ERROR;
   output status = S21_ParserFirstReadFile(path, &data->count_of_vertexes,
                                           &data->count_of_facets);
   if (status == OK) {

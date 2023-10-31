@@ -47,7 +47,7 @@ tests: $(TEST_OBJECTS) $(OBJECTS)
 	$(CC) $(OBJECTS) c_files/3d_viewer_tests.c $(LFLAGS) -o test
 	./test
 
-gcov_report: clean add_gcov_flags test
+gcov_report: clean add_gcov_flags tests
 	./test
 	lcov --capture --directory . --output-file coverage.info
 	genhtml coverage.info --output-directory gcov_report

@@ -41,12 +41,12 @@ START_TEST(test_affine_rotate) {
   char *file_name = "test_objs/cube.obj";
   data cube_data = {0};
   S21_PrepareData(file_name, &cube_data);
-  int status1 = S21_Rotate(&cube_data.matrix_3d, OX, 45);
-  ck_assert_int_eq(status1, OK);
-  int status2 = S21_Rotate(&cube_data.matrix_3d, OY, 45);
-  ck_assert_int_eq(status2, OK);
-  int status3 = S21_Rotate(&cube_data.matrix_3d, OZ, 45);
-  ck_assert_int_eq(status3, OK);
+  int status = S21_Rotate(&cube_data.matrix_3d, OX, 45);
+  ck_assert_int_eq(status, OK);
+  status = S21_Rotate(&cube_data.matrix_3d, OY, 45);
+  ck_assert_int_eq(status, OK);
+  status = S21_Rotate(&cube_data.matrix_3d, OZ, 45);
+  ck_assert_int_eq(status, OK);
   char *file_name_rotated = "test_objs/cube_rotated.obj";
   data cube_rotated_data = {0};
   S21_PrepareData(file_name_rotated, &cube_rotated_data);
@@ -116,6 +116,26 @@ START_TEST(test_affine_scale) {
                      cube_rotated_data.count_of_facets);
 }
 
+START_TEST(wrong_data) {
+  int status = S21_PrepareData("wljndjajwbgjw.obj", NULL);
+  ck_assert_int_eq(status, ERROR);
+}
+
+START_TEST(wrong_file_contents) {
+  data data = {0};
+  int status = S21_PrepareData("test_objs/wrong_file_contents.obj", &data);
+  ck_assert_int_eq(status, ERROR);
+}
+
+START_TEST(nulls) {
+  int status = S21_Translate(NULL, 1, 1, 1);
+  ck_assert_int_eq(status, ERROR);
+  status = S21_Rotate(NULL, OX, 0);
+  ck_assert_int_eq(status, ERROR);
+  status = S21_Scale(NULL, 1, 1, 1);
+  ck_assert_int_eq(status, ERROR);
+}
+
 int main(void) {
   Suite *s = suite_create("Core");
   SRunner *runner = srunner_create(s);
@@ -126,6 +146,9 @@ int main(void) {
   tcase_add_test(tc_core, test_affine_rotate);
   tcase_add_test(tc_core, test_affine_translate);
   tcase_add_test(tc_core, test_affine_scale);
+  tcase_add_test(tc_core, wrong_data);
+  tcase_add_test(tc_core, wrong_file_contents);
+  tcase_add_test(tc_core, nulls);
 
   suite_add_tcase(s, tc_core);
   srunner_run_all(runner, CK_NORMAL);
