@@ -14,7 +14,7 @@ START_TEST(test_parser_1) {
                       1.0, -1.0, -1.0, -1.0, 1.0,  1.0,  -1.0, 1.0,
                       1.0, 1.0,  -1.0, 1.0,  1.0,  -1.0, 1.0,  -1.0};
 
-  for (int i = 0; i < (sizeof(vertexes) / sizeof(vertexes[0]) / 3); ++i) {
+  for (size_t i = 0; i < (sizeof(vertexes) / sizeof(vertexes[0]) / 3); ++i) {
     ck_assert_double_eq_tol(parsed_data.matrix[i][OX], vertexes[i * 3],
                             TOLERANCE);
     ck_assert_double_eq_tol(parsed_data.matrix[i][OY], vertexes[i * 3 + 1],
@@ -27,7 +27,7 @@ START_TEST(test_parser_1) {
                   1, 2, 4, 5, 8, 6, 1, 5, 2, 2, 6, 3, 4, 3, 8, 5, 1, 8};
 
   polygon_t *facetes_data = cube_data.polygons;
-  for (int i = 0; i < (sizeof(facets) / sizeof(facets[0]) / 3); ++i) {
+  for (size_t i = 0; i < (sizeof(facets) / sizeof(facets[0]) / 3); ++i) {
     for (int j = 0; j < facetes_data[i].numbers_of_vertexes_in_facets; ++j) {
       ck_assert_int_eq(facetes_data[i].vertexes[j], facets[i * 3 + j]);
     }
@@ -41,9 +41,12 @@ START_TEST(test_affine_rotate) {
   char *file_name = "test_objs/cube.obj";
   data cube_data = {0};
   S21_PrepareData(file_name, &cube_data);
-  S21_Rotate(&cube_data.matrix_3d, OX, 45);
-  S21_Rotate(&cube_data.matrix_3d, OY, 45);
-  S21_Rotate(&cube_data.matrix_3d, OZ, 45);
+  int status1 = S21_Rotate(&cube_data.matrix_3d, OX, 45);
+  ck_assert_int_eq(status1, OK);
+  int status2 = S21_Rotate(&cube_data.matrix_3d, OY, 45);
+  ck_assert_int_eq(status2, OK);
+  int status3 = S21_Rotate(&cube_data.matrix_3d, OZ, 45);
+  ck_assert_int_eq(status3, OK);
   char *file_name_rotated = "test_objs/cube_rotated.obj";
   data cube_rotated_data = {0};
   S21_PrepareData(file_name_rotated, &cube_rotated_data);
@@ -67,7 +70,8 @@ START_TEST(test_affine_translate) {
   char *file_name = "test_objs/cube.obj";
   data cube_data = {0};
   S21_PrepareData(file_name, &cube_data);
-  S21_Translate(&cube_data.matrix_3d, 5, 6, 9);
+  int status = S21_Translate(&cube_data.matrix_3d, 5, 6, 9);
+  ck_assert_int_eq(status, OK);
   char *file_name_rotated = "test_objs/cube_translated.obj";
   data cube_rotated_data = {0};
   S21_PrepareData(file_name_rotated, &cube_rotated_data);
@@ -91,8 +95,8 @@ START_TEST(test_affine_scale) {
   char *file_name = "test_objs/cube.obj";
   data cube_data = {0};
   S21_PrepareData(file_name, &cube_data);
-  S21_Scale(&cube_data.matrix_3d, 1, 10, -0.25);
-
+  int status = S21_Scale(&cube_data.matrix_3d, 1, 10, -0.25);
+  ck_assert_int_eq(status, OK);
   char *file_name_rotated = "test_objs/cube_scaled.obj";
   data cube_rotated_data = {0};
   S21_PrepareData(file_name_rotated, &cube_rotated_data);

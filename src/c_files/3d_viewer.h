@@ -1,6 +1,7 @@
 #ifndef C8_3DVIEWER_V1_SRC_3D_VIEWER_H
 #define C8_3DVIEWER_V1_SRC_3D_VIEWER_H
 
+#define _GNU_SOURCE
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>

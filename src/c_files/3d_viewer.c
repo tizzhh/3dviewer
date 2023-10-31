@@ -108,6 +108,7 @@ int S21_Translate(matrix_t* vertices, double move_x, double move_y,
     vertices->matrix[i][OY] = vertices->matrix[i][OY] + move_y;
     vertices->matrix[i][OZ] = vertices->matrix[i][OZ] + move_z;
   }
+  return OK;
 }
 
 int S21_Rotate(matrix_t* vertices, axis axis, double angle) {
@@ -137,6 +138,7 @@ int S21_Rotate(matrix_t* vertices, axis axis, double angle) {
       vertices->matrix[i][OY] = temp_x * sin_val + temp_y * cos_val;
     }
   }
+  return OK;
 }
 
 int S21_Scale(matrix_t* vertices, double mult_x, double mult_y, double mult_z) {
@@ -148,6 +150,7 @@ int S21_Scale(matrix_t* vertices, double mult_x, double mult_y, double mult_z) {
     vertices->matrix[i][OY] = vertices->matrix[i][OY] * mult_y;
     vertices->matrix[i][OZ] = vertices->matrix[i][OZ] * mult_z;
   }
+  return OK;
 }
 
 void S21_RemoveMatrix(matrix_t* matrix) {
