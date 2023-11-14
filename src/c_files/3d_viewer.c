@@ -99,7 +99,7 @@ output S21_PrepareData(char* path, data* data) {
   return status;
 }
 
-int S21_Translate(matrix_t* vertices, double move_x, double move_y,
+output S21_Translate(matrix_t* vertices, double move_x, double move_y,
                   double move_z) {
   if (!vertices) {
     return ERROR;
@@ -112,7 +112,7 @@ int S21_Translate(matrix_t* vertices, double move_x, double move_y,
   return OK;
 }
 
-int S21_Rotate(matrix_t* vertices, axis axis, double angle) {
+output S21_Rotate(matrix_t* vertices, axis axis, double angle) {
   double temp_x;
   double temp_y;
   double temp_z;
@@ -142,7 +142,7 @@ int S21_Rotate(matrix_t* vertices, axis axis, double angle) {
   return OK;
 }
 
-int S21_Scale(matrix_t* vertices, double mult_x, double mult_y, double mult_z) {
+output S21_Scale(matrix_t* vertices, double mult_x, double mult_y, double mult_z) {
   if (!vertices) {
     return ERROR;
   }
