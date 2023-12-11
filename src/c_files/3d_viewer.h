@@ -49,6 +49,16 @@ typedef struct data {
 typedef enum output { OK, ERROR } output;
 
 /**
+ * @brief Структура точки с координатами.
+ *
+ */
+typedef struct point {
+  double ox;
+  double oy;
+  double oz;
+} point;
+
+/**
  * @brief Три оси техмерного пространства.
  *
  * Используется для определения рассматриваемой оси.
@@ -167,5 +177,21 @@ void S21_RemoveMatrix(matrix_t* matrix);
  * @param count_of_polygons Количество полигонов у объекта.
  */
 void S21_RemovePolygons(polygon_t* polygons, int count_of_polygons);
+
+/**
+ * @brief Функция для создания матрицы всех точек полигонов.
+ *
+ * @param obj_data прочитанные из файла .obj данные.
+ * @return point**  указатель на полученную матрицу.
+ */
+point** S21_CombineFacetsWithVertexes(const data* obj_data);
+
+/**
+ * @brief функция для удаления матрицы точек из памяти.
+ *
+ * @param points указатель на матрицу точек.
+ * @param obj_data прочитанные из файла .obj данные.
+ */
+void S21_FreePoints(point** points, const data* obj_data);
 
 #endif  // C8_3DVIEWER_V1_SRC_3D_VIEWER_H

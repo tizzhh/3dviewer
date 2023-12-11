@@ -2,7 +2,7 @@ CFLAGS = -Wall -Werror -Wextra -std=c11 -pedantic
 LFLAGS = -lcheck
 CC = gcc
 
-INSTALL_DIR := calculator_build
+INSTALL_DIR := build
 
 .PHONY: clean all rebuild install uninstall dvi dist
 
@@ -52,6 +52,10 @@ gcov_report: clean add_gcov_flags tests
 	lcov --capture --directory . --output-file coverage.info
 	genhtml coverage.info --output-directory gcov_report
 	open gcov_report/index.html
+
+lib3d_viewer.a: $(OBJECTS)
+	ar -rcs $@  $(OBJECTS)
+	cp ./lib3d_viewer.a ../build
 
 add_gcov_flags:
 	$(eval CFLAGS += --coverage)

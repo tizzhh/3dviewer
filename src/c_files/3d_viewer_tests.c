@@ -33,6 +33,32 @@ START_TEST(test_parser_1) {
     }
   }
 
+  point **combined_data = S21_CombineFacetsWithVertexes(&cube_data);
+
+  double points[] = {
+      1.0,  -1.0, 1.0,  -1.0, -1.0, 1.0,  -1.0, -1.0, -1.0, -1.0, 1.0,  -1.0,
+      -1.0, 1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  -1.0, 1.0,  1.0,  1.0,
+      1.0,  -1.0, 1.0,  1.0,  1.0,  1.0,  -1.0, 1.0,  1.0,  -1.0, -1.0, 1.0,
+      -1.0, -1.0, 1.0,  -1.0, 1.0,  1.0,  -1.0, 1.0,  -1.0, 1.0,  -1.0, -1.0,
+      -1.0, -1.0, -1.0, -1.0, 1.0,  -1.0, 1.0,  -1.0, -1.0, 1.0,  -1.0, 1.0,
+      -1.0, -1.0, -1.0, 1.0,  1.0,  -1.0, -1.0, 1.0,  -1.0, 1.0,  1.0,  1.0,
+      1.0,  -1.0, -1.0, 1.0,  1.0,  -1.0, 1.0,  -1.0, 1.0,  1.0,  -1.0, 1.0,
+      1.0,  1.0,  1.0,  -1.0, -1.0, 1.0,  -1.0, -1.0, -1.0, -1.0, -1.0, 1.0,
+      -1.0, 1.0,  -1.0, 1.0,  1.0,  -1.0, 1.0,  -1.0, -1.0, -1.0, 1.0,  -1.0};
+
+  for (int i = 0; i < cube_data.count_of_facets; ++i) {
+    for (int j = 0; j < cube_data.polygons[i].numbers_of_vertexes_in_facets;
+         ++j) {
+      ck_assert_double_eq_tol(combined_data[i][j].ox, points[i * 9 + j * 3],
+                              TOLERANCE);
+      ck_assert_double_eq_tol(combined_data[i][j].oy, points[i * 9 + 1 + j * 3],
+                              TOLERANCE);
+      ck_assert_double_eq_tol(combined_data[i][j].oz, points[i * 9 + 2 + j * 3],
+                              TOLERANCE);
+    }
+  }
+
+  S21_FreePoints(combined_data, &cube_data);
   S21_RemoveMatrix(&cube_data.matrix_3d);
   S21_RemovePolygons(cube_data.polygons, cube_data.count_of_facets);
 }

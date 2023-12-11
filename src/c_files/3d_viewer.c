@@ -100,7 +100,7 @@ output S21_PrepareData(char* path, data* data) {
 }
 
 output S21_Translate(matrix_t* vertices, double move_x, double move_y,
-                  double move_z) {
+                     double move_z) {
   if (!vertices) {
     return ERROR;
   }
@@ -142,7 +142,8 @@ output S21_Rotate(matrix_t* vertices, axis axis, double angle) {
   return OK;
 }
 
-output S21_Scale(matrix_t* vertices, double mult_x, double mult_y, double mult_z) {
+output S21_Scale(matrix_t* vertices, double mult_x, double mult_y,
+                 double mult_z) {
   if (!vertices) {
     return ERROR;
   }
@@ -167,12 +168,38 @@ void S21_RemoveMatrix(matrix_t* matrix) {
 }
 
 void S21_RemovePolygons(polygon_t* polygons, int count_of_polygons) {
-  if (polygons && polygons->vertexes) {
-    for (int i = 0; i < count_of_polygons; ++i) {
-      free(polygons[i].vertexes);
-    }
-    free(polygons);
+  for (int i = 0; i < count_of_polygons; ++i) {
+    free(polygons[i].vertexes);
   }
+  free(polygons);
 }
 
+point** S21_CombineFacetsWithVertexes(const data* obj_data) {
+  point** combined_matrix = calloc(obj_data->count_of_facets, sizeof(point*));
+  for (int i = 0; i < obj_data->count_of_facets; ++i) {
+    combined_matrix[i] = calloc(
+        obj_data->polygons->numbers_of_vertexes_in_facets, sizeof(point));
+  }
+
+  for (int i = 0; i < obj_data->count_of_facets; ++i) {
+    for (int j = 0; j < obj_data->polygons[i].numbers_of_vertexes_in_facets;
+         ++j) {
+      combined_matrix[i][j].ox =
+          obj_data->matrix_3d.matrix[obj_data->polygons[i].vertexes[j] - 1][OX];
+      combined_matrix[i][j].oy =
+          obj_data->matrix_3d.matrix[obj_data->polygons[i].vertexes[j] - 1][OY];
+      combined_matrix[i][j].oz =
+          obj_data->matrix_3d.matrix[obj_data->polygons[i].vertexes[j] - 1][OZ];
+    }
+  }
+
+  return combined_matrix;
+}
+
+void S21_FreePoints(point** points, const data* obj_data) {
+  for (int i = 0; i < obj_data->count_of_facets; ++i) {
+    free(points[i]);
+  }
+  free(points);
+}
 // int main() {}
