@@ -1,6 +1,8 @@
 #include "oglwidget.h"
 #include <QtOpenGL>
 #include <QKeyEvent>
+
+#include <array>
 OGLWidget::OGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
 
@@ -11,12 +13,6 @@ void OGLWidget::initializeGL()
     glEnable(GL_DEPTH_TEST);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-//    glFrustum(-1,1,-1,1,0,8);
-//    glFrustum(-1,1,-1,1, 2, 8);
-//    glEnable(GL_DEPTH_TEST);
-//    glMatrixMode(GL_MODELVIEW);
-//    glLoadIdentity();
-//    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void OGLWidget::resizeGL(int w, int h)
@@ -24,9 +20,10 @@ void OGLWidget::resizeGL(int w, int h)
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-//    glOrtho(-10,10,-10,10,0.5, 5);
-    glFrustum(-10,10,-10,10,-0.5, 5);
-//    glFrustum(0, this->width(), 0, this->height(), -100, 100);
+//    glOrtho(-10,10,-10,10,0.5, 5)
+//    glOrtho(-10,10,-10,10,-5, 5);
+//    glFrustum(-2,2,-2,2,-3, 5);
+//    glFrustum(0, this->width(), 0, this->height(), -200, 200);
 //    resize(this->width(), this->height());
 //    glFrustum(-1,1,-1,1,1,2);
 }
@@ -39,24 +36,25 @@ void OGLWidget::paintGL()
 //    glDrawElements(GL_QUADS, 24, GL_UNSIGNED_BYTE, &dataObject.matrix_3d.matrix);
 
 //    resize(this->width(), this->height());
-    glClearColor(0.7,1,0.7,0);
+
+//    glClearColor(0.7,1,0.7,0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
+//    glScalef(0.0001,0.0001,0.001);
+    glFrustum(-5,5,-5,5,-5, 5);
+
+    glScalef(scale, scale, scale);
+    glLineWidth(1000.0);
 
     glRotatef(_angleZ,0,0,1);
-    glRotatef(_angleX,1,0,0);
     glRotatef(_angleY,0,1,0);
+    glRotatef(_angleX,1,0,0);
     glTranslatef(coordX, coordY, coordZ);
-//    glFrustum(-2,2,-2,2,0.5, 5);
+//    glFrustum(-2,2,-2,2,0e.5, 5);
 //    glTranslated(0, 0, -2);
 
 
     drawObject();
-//    glScalef(0.3,0.3,0.3);
-
-
-//    glOrtho(0, this->width(), 0, this->height(), -100, 100);
-//    glTranslated(2, 0, -10);
 
 
 }
@@ -64,15 +62,37 @@ void OGLWidget::paintGL()
 void OGLWidget::drawObject()
 {
     if(dataObject.count_of_vertexes != 0) {
-        float vertex[] = {0,0,0,    0,1,0,  0,1,1,
-                         0,0,1,     1,0,1,  1,1,1,
-                         1,1,0,     1,0,0};
+        glColor3d(0.7,1,0.7);
+        int countVertexes{0};
+        QVector<double> vec;
+        point **combinedData;
+
+        combinedData = S21_CombineFacetsWithVertexes(&dataObject);
+        for (int i = 0; i < dataObject.count_of_facets; ++i) {
+            countVertexes += dataObject.polygons[i].numbers_of_vertexes_in_facets;
+            for (int j = 0; j < dataObject.polygons[i].numbers_of_vertexes_in_facets; ++j) {
+                vec.push_back(combinedData[i][j].ox);
+                vec.push_back(combinedData[i][j].oy);
+                vec.push_back(combinedData[i][j].oz);
+            }
+        }
+        double *data = vec.data();
         glEnableClientState(GL_VERTEX_ARRAY);
-        glVertexPointer(3, GL_FLOAT, 0, &dataObject.matrix_3d.matrix);
-//        glVertexPointer(3, GL_FLOAT, 0, &vertex);
-        glDrawArrays(GL_LINE_STRIP, 0, dataObject.count_of_vertexes);
+        glVertexPointer(3, GL_DOUBLE, 0, data);
+        glDrawArrays(GL_LINE_STRIP, 0, countVertexes);
         glDisableClientState(GL_VERTEX_ARRAY);
     }
+}
+
+double OGLWidget::getScale() const
+{
+    return scale;
+}
+
+void OGLWidget::setScale(double newScale)
+{
+    scale = newScale;
+    update();
 }
 
 void OGLWidget::setCoordZ(int newCoordZ)

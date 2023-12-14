@@ -9,6 +9,8 @@ extern "C" {
 }
 #endif
 
+#include <QDir>
+#include <QImageWriter>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QKeyEvent>
@@ -19,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->screenshots = 0;
 
 }
 
@@ -30,13 +33,19 @@ MainWindow::~MainWindow()
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     if(event->key() == Qt::Key_W) {
-        ui->oglwidget->moveCamera("W");
+        double scale = ui->oglwidget->getScale();
+        scale += 0.1;
+        ui->verticalSlider->setValue(scale * 10);
+        ui->oglwidget->setScale(scale);
     }
     else if(event->key() == Qt::Key_A) {
         ui->oglwidget->moveCamera("A");
     }
     else if(event->key() == Qt::Key_S) {
-        ui->oglwidget->moveCamera("S");
+        double scale = ui->oglwidget->getScale();
+        scale -= 0.1;
+        ui->verticalSlider->setValue(scale * 10);
+        ui->oglwidget->setScale(scale);
     }
     else if(event->key() == Qt::Key_D) {
         ui->oglwidget->moveCamera("D");
@@ -48,6 +57,48 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
     }
 }
+
+void MainWindow::on_screenButton_clicked() {
+    QDir parentDir(QCoreApplication::applicationDirPath());
+    parentDir.cdUp();
+
+    QDir screenshotsDir(parentDir.absolutePath() + "/screenshots");
+    if (!screenshotsDir.exists()) {
+        screenshotsDir.mkpath(".");
+    }
+    auto geom = ui->oglwidget->grab();
+    auto image = geom.toImage();
+
+    QStringList screens;
+
+    int highest_num = 0;
+    if (ui->radioButton_bmp->isChecked()) {
+        screens = screenshotsDir.entryList(QStringList() << "*.bmp", QDir::Files);
+    }
+    else if (ui->radioButton_jpeg->isChecked()) {
+        screens = screenshotsDir.entryList(QStringList() << "*.jpeg", QDir::Files);
+    }
+    for (auto& screen : screens) {
+        screen.replace("screenshot_", "");
+        int name_num = screen.at(0).digitValue();
+        if (name_num > highest_num) {
+            highest_num = name_num;
+        }
+    }
+    this->screenshots = highest_num + 1;
+
+    QString file_name;
+    if (ui->radioButton_bmp->isChecked()) {
+        file_name = screenshotsDir.filePath("screenshot_") + QString::number(this->screenshots++) + ".bmp";
+    }
+    else if (ui->radioButton_jpeg->isChecked()) {
+        file_name = screenshotsDir.filePath("screenshot_") + QString::number(this->screenshots++) + ".jpeg";
+    }
+    
+    image.save(file_name);
+    QMessageBox::information(this, "Screenshot Captured", "Screenshot saved as:\n" + file_name);
+}
+
 void MainWindow::on_loadButton_clicked()
 {
     QString file = QFileDialog::getOpenFileName(this, "Open", "../test_objs", "*.obj");
@@ -112,5 +163,17 @@ void MainWindow::on_sliderMoveY_sliderMoved(int position)
 void MainWindow::on_sliderMoveZ_sliderMoved(int position)
 {
     ui->oglwidget->setCoordZ(position);
+}
+
+
+void MainWindow::on_verticalSlider_sliderMoved(int position)
+{
+    ui->oglwidget->setScale(position / 10.0);
+}
+
+
+void MainWindow::on_gifButton_clicked()
+{
+
 }
 

@@ -34,6 +34,10 @@ public:
 
     void setCoordZ(int newCoordZ);
 
+    void setScale(double newScale);
+
+    double getScale() const;
+
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
@@ -47,6 +51,7 @@ private:
     int coordX {0};
     int coordY {0};
     int coordZ {0};
+    double scale{0.5};
 
 };
 

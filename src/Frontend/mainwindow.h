@@ -19,6 +19,8 @@ public slots:
     void keyPressEvent(QKeyEvent *event);
 
 private slots:
+    void on_screenButton_clicked();
+
     void on_loadButton_clicked();
 
     void on_SliderZ_sliderMoved(int position);
@@ -37,7 +39,12 @@ private slots:
 
     void on_sliderMoveZ_sliderMoved(int position);
 
+    void on_verticalSlider_sliderMoved(int position);
+
+    void on_gifButton_clicked();
+
 private:
     Ui::MainWindow *ui;
+    int screenshots;
 };
 #endif // MAINWINDOW_H
