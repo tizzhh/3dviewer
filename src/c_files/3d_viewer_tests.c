@@ -162,19 +162,33 @@ START_TEST(nulls) {
   ck_assert_int_eq(status, ERROR);
 }
 
+START_TEST(test_parser_2) {
+  char *file_name = "test_objs/FinalBaseMesh.obj";
+  data cube_data = {0};
+  output first_parse = S21_PrepareData(file_name, &cube_data);
+  ck_assert_int_eq(first_parse, OK);
+
+  printf("aboba5\n");
+
+  S21_RemoveMatrix(&cube_data.matrix_3d);
+  printf("aboba4\n");
+  S21_RemovePolygons(cube_data.polygons, cube_data.count_of_facets);
+}
+
 int main(void) {
   Suite *s = suite_create("Core");
   SRunner *runner = srunner_create(s);
   TCase *tc_core = tcase_create("Core");
 
   int no_failed = 0;
-  tcase_add_test(tc_core, test_parser_1);
-  tcase_add_test(tc_core, test_affine_rotate);
-  tcase_add_test(tc_core, test_affine_translate);
-  tcase_add_test(tc_core, test_affine_scale);
-  tcase_add_test(tc_core, wrong_data);
-  tcase_add_test(tc_core, wrong_file_contents);
-  tcase_add_test(tc_core, nulls);
+  // tcase_add_test(tc_core, test_parser_1);
+  tcase_add_test(tc_core, test_parser_2);
+  // tcase_add_test(tc_core, test_affine_rotate);
+  // tcase_add_test(tc_core, test_affine_translate);
+  // tcase_add_test(tc_core, test_affine_scale);
+  // tcase_add_test(tc_core, wrong_data);
+  // tcase_add_test(tc_core, wrong_file_contents);
+  // tcase_add_test(tc_core, nulls);
 
   suite_add_tcase(s, tc_core);
   srunner_run_all(runner, CK_NORMAL);

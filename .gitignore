@@ -2,6 +2,8 @@ build-Frontend*
 *CMakeLists.txt.user
 build/
 .vscode/
+screenshots/
+gifs/
 
 # Prerequisites
 *.d
@@ -9,7 +11,7 @@ build/
 # Object files
 *.o
 *.ko
-*.obj
+# *.obj
 *.elf
 
 # Linker output

@@ -1,7 +1,14 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#define WIDTH 640
+#define HEIGHT 480
+#define FPS 10
+#define DELAY_BETWEEN_FRAMES 100
+#define GIF_DURATION 5
+
 #include <QMainWindow>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -43,8 +50,15 @@ private slots:
 
     void on_gifButton_clicked();
 
+    void CaptureFrames();
+
+    void SaveGif();
+
 private:
     Ui::MainWindow *ui;
     int screenshots;
+    int gifs;
+    QVector<QImage> gif_list;
+    QTimer timer;
 };
 #endif // MAINWINDOW_H

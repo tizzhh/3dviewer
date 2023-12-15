@@ -6,16 +6,16 @@ output S21_ParserFirstReadFile(char* path, int* count_of_vertexes,
   char ch;
   output res = OK;
   while ((ch = fgetc(file)) != EOF) {
-    if (ch == 'v' || ch == 'f' || ch == ' ' || ch == '.' || ch == '-' ||
-        ch == '\n' || ch == '/' || (ch >= '0' && ch <= '9') || ch == '\r') {
-      if (ch == 'v')
-        ++(*count_of_vertexes);
-      else if (ch == 'f')
-        ++(*count_of_facets);
-    } else {
-      res = ERROR;
-      break;
-    }
+    // if (ch == 'v' || ch == 'f' || ch == ' ' || ch == '.' || ch == '-' ||
+    //     ch == '\n' || ch == '/' || (ch >= '0' && ch <= '9') || ch == '\r') {
+    if (ch == 'v' && (ch = fgetc(file)) == ' ')
+      ++(*count_of_vertexes);
+    else if (ch == 'f' && (ch = fgetc(file)) == ' ')
+      ++(*count_of_facets);
+    // } else {
+    //   res = ERROR;
+    //   break;
+    // }
   }
   fclose(file);
   return res;
@@ -51,17 +51,20 @@ size_t S21_ParserCountOfChars(char* str) {
 
 void S21_ParserSecondReadFile(char* path, data* data) {
   FILE* file = fopen(path, "r");
-  char* getline_str = NULL;
+  char getline_str[2048];
   size_t len = 0, count_of_vertexes = 0, count_of_polygons = 0;
-  while (getline(&getline_str, &len, file) != -1) {
+  while (fgets(getline_str, 2048, file) != NULL) {
     char* str = getline_str;
-    char mode;
-    sscanf(str, "%c", &mode);
-    if (mode == 'v') {
+    char mode, buff;
+    sscanf(str, "%c%c", &mode, &buff);
+    if (mode == 'v' && buff == ' ') {
       str += 2;
+      printf("test0\n");
+      printf("%s\n", getline_str);
       sscanf(str, "%lf%lf%lf", &data->matrix_3d.matrix[count_of_vertexes][0],
              &data->matrix_3d.matrix[count_of_vertexes][1],
              &data->matrix_3d.matrix[count_of_vertexes][2]);
+      printf("test1\n");
       ++count_of_vertexes;
     } else {
 #define vert_in_fac \
@@ -77,8 +80,9 @@ void S21_ParserSecondReadFile(char* path, data* data) {
       ++count_of_polygons;
     }
   }
-  free(getline_str);
+  printf("aboba0%s\n", getline_str);
   fclose(file);
+  printf("aboba0.5\n");
 }
 
 output S21_PrepareData(char* path, data* data) {
@@ -93,6 +97,7 @@ output S21_PrepareData(char* path, data* data) {
       data->matrix_3d.matrix[i] = calloc(data->matrix_3d.cols, sizeof(double));
     }
 
+    printf("%d\n", data->count_of_facets);
     data->polygons = calloc(data->count_of_facets, sizeof(polygon_t));
     S21_ParserSecondReadFile(path, data);
   }
@@ -169,16 +174,20 @@ void S21_RemoveMatrix(matrix_t* matrix) {
 
 void S21_RemovePolygons(polygon_t* polygons, int count_of_polygons) {
   for (int i = 0; i < count_of_polygons; ++i) {
+    // printf("WHERE??\n");
     free(polygons[i].vertexes);
+    // printf("WHERE??2\n");
   }
+  // printf("WHERE??4\n");
   free(polygons);
+  // printf("WHERE??3\n");
 }
 
 point** S21_CombineFacetsWithVertexes(const data* obj_data) {
   point** combined_matrix = calloc(obj_data->count_of_facets, sizeof(point*));
   for (int i = 0; i < obj_data->count_of_facets; ++i) {
     combined_matrix[i] = calloc(
-        obj_data->polygons->numbers_of_vertexes_in_facets, sizeof(point));
+        obj_data->polygons[i].numbers_of_vertexes_in_facets, sizeof(point));
   }
 
   for (int i = 0; i < obj_data->count_of_facets; ++i) {

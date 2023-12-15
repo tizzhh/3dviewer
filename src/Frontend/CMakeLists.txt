@@ -25,6 +25,12 @@ find_library(
 
 
 set(PROJECT_SOURCES
+        ../giflib/dgif_lib.c
+        ../giflib/egif_lib.c
+        ../giflib/gif_hash.c
+        ../giflib/gifalloc.c
+        ../giflib/qgifimage.h
+        ../giflib/qgifimage.cpp
         main.cpp
         mainwindow.cpp
         oglwidget.cpp
