@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>824</width>
-    <height>773</height>
+    <height>877</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -77,21 +77,21 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_2">
+         <widget class="QPushButton" name="buttonColorVertex">
           <property name="text">
            <string>Vertexes</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="bunnonColorLines">
           <property name="text">
            <string>Lines</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_3">
+         <widget class="QPushButton" name="bunnotColorBackground">
           <property name="text">
            <string>Background</string>
           </property>
@@ -165,7 +165,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QSlider" name="horizontalSlider">
+         <widget class="QSlider" name="sliderVertexSize">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -187,21 +187,24 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_6">
            <item>
-            <widget class="QRadioButton" name="radioButton_5">
+            <widget class="QRadioButton" name="radioButtonNone">
              <property name="text">
               <string>None</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QRadioButton" name="radioButton_3">
+            <widget class="QRadioButton" name="radioButtonCircle">
              <property name="text">
               <string>Circle</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QRadioButton" name="radioButton_4">
+            <widget class="QRadioButton" name="radioButtonRect">
              <property name="text">
               <string>Rectangle</string>
              </property>
@@ -225,7 +228,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QSlider" name="horizontalSlider_2">
+         <widget class="QSlider" name="sliderLineSize">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -244,16 +247,26 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7">
            <item>
-            <widget class="QRadioButton" name="radioButton_7">
+            <widget class="QRadioButton" name="radioButtonSolid">
              <property name="text">
               <string>Solid</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QRadioButton" name="radioButton_6">
+            <widget class="QRadioButton" name="radioButtonDashed">
              <property name="text">
               <string>Dashed</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radioButtonTriangles">
+             <property name="text">
+              <string>Triangles</string>
              </property>
             </widget>
            </item>
@@ -387,10 +400,10 @@
           <item row="0" column="1">
            <widget class="QSlider" name="sliderMoveX">
             <property name="minimum">
-             <number>-20</number>
+             <number>-220</number>
             </property>
             <property name="maximum">
-             <number>20</number>
+             <number>220</number>
             </property>
             <property name="singleStep">
              <number>1</number>
@@ -406,10 +419,10 @@
           <item row="1" column="1">
            <widget class="QSlider" name="sliderMoveY">
             <property name="minimum">
-             <number>-20</number>
+             <number>-220</number>
             </property>
             <property name="maximum">
-             <number>20</number>
+             <number>220</number>
             </property>
             <property name="pageStep">
              <number>1</number>
@@ -422,10 +435,10 @@
           <item row="2" column="1">
            <widget class="QSlider" name="sliderMoveZ">
             <property name="minimum">
-             <number>-20</number>
+             <number>-220</number>
             </property>
             <property name="maximum">
-             <number>20</number>
+             <number>220</number>
             </property>
             <property name="pageStep">
              <number>1</number>
@@ -453,8 +466,11 @@
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
           </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
           <property name="maximum">
-           <number>10</number>
+           <number>300</number>
           </property>
           <property name="pageStep">
            <number>10</number>
@@ -473,6 +489,9 @@
           </property>
           <property name="tickPosition">
            <enum>QSlider::TicksBothSides</enum>
+          </property>
+          <property name="tickInterval">
+           <number>5</number>
           </property>
          </widget>
         </item>
@@ -561,21 +580,21 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_6">
       <item>
-       <widget class="QLabel" name="label_10">
+       <widget class="QLabel" name="labelName">
         <property name="text">
          <string>obj:</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_12">
+       <widget class="QLabel" name="labelVertexes">
         <property name="text">
          <string>Vertexes:</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_11">
+       <widget class="QLabel" name="labelPoligons">
         <property name="text">
          <string>Poligons:</string>
         </property>
@@ -604,7 +623,7 @@
      <x>0</x>
      <y>0</y>
      <width>824</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

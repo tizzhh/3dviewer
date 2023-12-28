@@ -31,11 +31,15 @@ set(PROJECT_SOURCES
         ../giflib/gifalloc.c
         ../giflib/qgifimage.h
         ../giflib/qgifimage.cpp
+        ../c_files/3d_viewer.h
+        ../c_files/3d_viewer.c
         main.cpp
         mainwindow.cpp
         oglwidget.cpp
+        settings.cpp
         mainwindow.h
         oglwidget.h
+        settings.h
         mainwindow.ui
 )
 

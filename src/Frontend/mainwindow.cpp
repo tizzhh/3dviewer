@@ -10,11 +10,13 @@ extern "C" {
 }
 #endif
 
+#include <QColorDialog>
 #include <QDir>
 #include <QFileDialog>
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QTimer>
+#include <QWheelEvent>
 
 #include "../giflib/dgif_lib.c"
 #include "../giflib/egif_lib.c"
@@ -23,34 +25,102 @@ extern "C" {
 #include "../giflib/gifalloc.c"
 #include "../giflib/qgifimage.h"
 #include "oglwidget.h"
+#include "settings.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
   this->screenshots = 0;
   this->gifs = 0;
+  _settings = new Settings(this);
+  ui->oglwidget->setSettings(_settings);
+  _settings->loadSettings();
   gif_list.clear();
 }
 
 MainWindow::~MainWindow() { delete ui; }
 
+void MainWindow::setColors(QColor lineColor, QColor vertexColor,
+                           QColor backgroundColor) {
+  ui->oglwidget->setBackground(backgroundColor);
+  ui->oglwidget->setVertexesColor(vertexColor);
+  ui->oglwidget->setLinesColor(lineColor);
+}
+
+void MainWindow::setSize(int vertexesWidth, int lineWidth) {
+  ui->oglwidget->setLineSize(lineWidth);
+  ui->sliderLineSize->setValue(lineWidth);
+  ui->oglwidget->setVertexSize(vertexesWidth);
+  ui->sliderVertexSize->setValue(vertexesWidth);
+}
+
+void MainWindow::setTypeLine(int type) {
+  ui->oglwidget->setTypeLine(type);
+  if (type == 0)
+    ui->radioButtonSolid->setChecked(true);
+  else if (type == 1)
+    ui->radioButtonDashed->setChecked(true);
+  else if (type == 2)
+    ui->radioButtonTriangles->setChecked(true);
+}
+
+void MainWindow::setTypeVertexes(bool isVertexCircle, bool isVertexEnable) {
+  ui->oglwidget->setIsVertexEnable(isVertexEnable);
+  ui->oglwidget->setIsVertexCircle(isVertexCircle);
+  if (isVertexEnable) {
+    if (isVertexCircle) {
+      ui->radioButtonCircle->setChecked(true);
+    } else
+      ui->radioButtonRect->setChecked(true);
+  } else
+    ui->radioButtonNone->setChecked(true);
+}
+
+void MainWindow::setProjection(bool ortho) {
+  ui->oglwidget->setOrtho(ortho);
+  if (ortho)
+    ui->comboBox->setCurrentIndex(0);
+  else
+    ui->comboBox->setCurrentIndex(1);
+}
+
 void MainWindow::keyPressEvent(QKeyEvent *event) {
   if (event->key() == Qt::Key_W) {
-    double scale = ui->oglwidget->getScale();
-    scale += 0.1;
-    ui->verticalSlider->setValue(scale * 10);
-    ui->oglwidget->setScale(scale);
+    int y = ui->oglwidget->getCoordY();
+    y -= 2;
+    ui->sliderMoveY->setValue(y);
+    ui->oglwidget->setCoordY(y);
   } else if (event->key() == Qt::Key_A) {
-    ui->oglwidget->moveCamera("A");
+    int x = ui->oglwidget->getCoordX();
+    x += 2;
+    ui->sliderMoveX->setValue(x);
+    ui->oglwidget->setCoordX(x);
   } else if (event->key() == Qt::Key_S) {
+    int y = ui->oglwidget->getCoordY();
+    y += 2;
+    ui->sliderMoveY->setValue(y);
+    ui->oglwidget->setCoordY(y);
+  } else if (event->key() == Qt::Key_D) {
+    int x = ui->oglwidget->getCoordX();
+    x -= 2;
+    ui->sliderMoveX->setValue(x);
+    ui->oglwidget->setCoordX(x);
+  } else if (event->key() == Qt::Key_Q) {
+  } else if (event->key() == Qt::Key_E) {
+  }
+}
+
+void MainWindow::wheelEvent(QWheelEvent *event) {
+  if (event->angleDelta().y() < 0) {
     double scale = ui->oglwidget->getScale();
     scale -= 0.1;
     ui->verticalSlider->setValue(scale * 10);
     ui->oglwidget->setScale(scale);
-  } else if (event->key() == Qt::Key_D) {
-    ui->oglwidget->moveCamera("D");
-  } else if (event->key() == Qt::Key_Q) {
-  } else if (event->key() == Qt::Key_E) {
+  } else if (event->angleDelta().y() > 0) {
+    double scale = ui->oglwidget->getScale();
+    scale += 0.1;
+    ui->verticalSlider->setValue(scale * 10);
+    ui->oglwidget->setScale(scale);
   }
 }
 
@@ -111,6 +181,15 @@ void MainWindow::on_loadButton_clicked() {
     } else {
       ui->oglwidget->setDataObject(dataObject);
       ui->oglwidget->update();
+      QStringList list = file.split("/");
+      QString text = list.last();
+      ui->labelName->setText("obj:" + text);
+      text.clear();
+      text = QString::number(dataObject.count_of_facets);
+      ui->labelPoligons->setText("Vertexes:" + text);
+      text.clear();
+      text = QString::number(dataObject.count_of_vertexes);
+      ui->labelVertexes->setText("Poligons:" + text);
     }
   }
 }
@@ -206,4 +285,67 @@ void MainWindow::SaveGif() {
   gif_list.clear();
 
   QMessageBox::information(this, "Gif Captured", "Gif saved as:\n" + file_name);
+}
+
+void MainWindow::on_radioButtonCircle_clicked() {
+  ui->oglwidget->setIsVertexCircle(true);
+  ui->oglwidget->setIsVertexEnable(true);
+}
+
+void MainWindow::on_radioButtonNone_clicked() {
+  ui->oglwidget->setIsVertexEnable(false);
+}
+
+void MainWindow::on_radioButtonRect_clicked() {
+  ui->oglwidget->setIsVertexCircle(false);
+  ui->oglwidget->setIsVertexEnable(true);
+}
+
+void MainWindow::on_buttonColorVertex_clicked() {
+  QColor initialColor = ui->oglwidget->getVertexesColor();
+  QColor myColor = QColorDialog::getColor(initialColor, this, "Choose Color");
+  if (myColor.isValid()) {
+    ui->oglwidget->setVertexesColor(myColor);
+  }
+}
+
+void MainWindow::on_sliderVertexSize_sliderMoved(int position) {
+  ui->oglwidget->setVertexSize(position);
+}
+
+void MainWindow::on_sliderLineSize_sliderMoved(int position) {
+  ui->oglwidget->setLineSize(position);
+}
+
+void MainWindow::on_bunnonColorLines_clicked() {
+  QColor initialColor = ui->oglwidget->getLinesColor();
+  QColor myColor = QColorDialog::getColor(initialColor, this, "Choose Color");
+  if (myColor.isValid()) {
+    ui->oglwidget->setLinesColor(myColor);
+  }
+}
+
+void MainWindow::on_bunnotColorBackground_clicked() {
+  QColor initialColor = ui->oglwidget->getBackground();
+  QColor myColor = QColorDialog::getColor(initialColor, this, "Choose Color");
+  if (myColor.isValid()) {
+    ui->oglwidget->setBackground(myColor);
+  }
+}
+
+void MainWindow::on_comboBox_currentIndexChanged(int index) {
+  if (index == 0) ui->oglwidget->setOrtho(true);
+  if (index == 1) ui->oglwidget->setOrtho(false);
+}
+
+void MainWindow::on_radioButtonSolid_clicked() {
+  ui->oglwidget->setTypeLine(0);
+}
+
+void MainWindow::on_radioButtonDashed_clicked() {
+  ui->oglwidget->setTypeLine(1);
+}
+
+void MainWindow::on_radioButtonTriangles_clicked() {
+  ui->oglwidget->setTypeLine(2);
 }

@@ -2,29 +2,39 @@
 
 output S21_ParserFirstReadFile(char* path, int* count_of_vertexes,
                                int* count_of_facets) {
-  FILE* file = fopen(path, "r");
-  char ch;
   output res = OK;
-  while ((ch = fgetc(file)) != EOF) {
-    // if (ch == 'v' || ch == 'f' || ch == ' ' || ch == '.' || ch == '-' ||
-    //     ch == '\n' || ch == '/' || (ch >= '0' && ch <= '9') || ch == '\r') {
-    if (ch == 'v' && (ch = fgetc(file)) == ' ')
-      ++(*count_of_vertexes);
-    else if (ch == 'f' && (ch = fgetc(file)) == ' ')
-      ++(*count_of_facets);
-    // } else {
-    //   res = ERROR;
-    //   break;
-    // }
+  FILE* file = fopen(path, "r");
+  if (file == NULL) {
+    res = ERROR;
   }
-  fclose(file);
+  char ch;
+  if (res == OK) {
+    while ((ch = fgetc(file)) != EOF) {
+      if (ch == 'v' && (ch = fgetc(file)) == ' ')
+        ++(*count_of_vertexes);
+      else if (ch == 'f' && (ch = fgetc(file)) == ' ')
+        ++(*count_of_facets);
+    }
+  }
+  if (file) {
+    fclose(file);
+  }
   return res;
 }
 
 size_t S21_ParserCountOFVertexesInStr(char* str) {
-  size_t count_of_vertexes = 1;
-  while (*str != '\0')
-    if (*(str)++ == ' ') ++count_of_vertexes;
+  size_t count_of_vertexes = 0;
+  int ver_found = 0;
+
+  while (*str != '\0') {
+    if (*str >= '0' && *str <= '9' && !ver_found) {
+      ++count_of_vertexes;
+      ver_found = 1;
+    } else if (*str == ' ') {
+      ver_found = 0;
+    }
+    ++str;
+  }
   return count_of_vertexes;
 }
 
@@ -42,7 +52,7 @@ size_t S21_ParserCountOFVertexesInStr(char* str) {
 
 size_t S21_ParserCountOfChars(char* str) {
   size_t result = 0;
-  while (*str >= '0' && *str <= '9') {
+  while ((*str >= '0' && *str <= '9') || *str == '/') {
     ++result;
     ++str;
   }
@@ -52,25 +62,22 @@ size_t S21_ParserCountOfChars(char* str) {
 void S21_ParserSecondReadFile(char* path, data* data) {
   FILE* file = fopen(path, "r");
   char getline_str[2048];
-  size_t len = 0, count_of_vertexes = 0, count_of_polygons = 0;
+  size_t count_of_vertexes = 0, count_of_polygons = 0;
   while (fgets(getline_str, 2048, file) != NULL) {
     char* str = getline_str;
     char mode, buff;
     sscanf(str, "%c%c", &mode, &buff);
     if (mode == 'v' && buff == ' ') {
       str += 2;
-      printf("test0\n");
-      printf("%s\n", getline_str);
       sscanf(str, "%lf%lf%lf", &data->matrix_3d.matrix[count_of_vertexes][0],
              &data->matrix_3d.matrix[count_of_vertexes][1],
              &data->matrix_3d.matrix[count_of_vertexes][2]);
-      printf("test1\n");
       ++count_of_vertexes;
-    } else {
+    } else if (mode == 'f' && buff == ' ') {
 #define vert_in_fac \
   data->polygons[count_of_polygons].numbers_of_vertexes_in_facets
-      str += 2;
       vert_in_fac = S21_ParserCountOFVertexesInStr(str);
+      str += 2;
       data->polygons[count_of_polygons].vertexes =
           calloc(vert_in_fac, sizeof(int));
       for (int i = 0; i != vert_in_fac; ++i) {
@@ -80,9 +87,7 @@ void S21_ParserSecondReadFile(char* path, data* data) {
       ++count_of_polygons;
     }
   }
-  printf("aboba0%s\n", getline_str);
   fclose(file);
-  printf("aboba0.5\n");
 }
 
 output S21_PrepareData(char* path, data* data) {
@@ -96,8 +101,6 @@ output S21_PrepareData(char* path, data* data) {
     for (int i = 0; i < data->matrix_3d.rows; ++i) {
       data->matrix_3d.matrix[i] = calloc(data->matrix_3d.cols, sizeof(double));
     }
-
-    printf("%d\n", data->count_of_facets);
     data->polygons = calloc(data->count_of_facets, sizeof(polygon_t));
     S21_ParserSecondReadFile(path, data);
   }
@@ -174,13 +177,9 @@ void S21_RemoveMatrix(matrix_t* matrix) {
 
 void S21_RemovePolygons(polygon_t* polygons, int count_of_polygons) {
   for (int i = 0; i < count_of_polygons; ++i) {
-    // printf("WHERE??\n");
     free(polygons[i].vertexes);
-    // printf("WHERE??2\n");
   }
-  // printf("WHERE??4\n");
   free(polygons);
-  // printf("WHERE??3\n");
 }
 
 point** S21_CombineFacetsWithVertexes(const data* obj_data) {
@@ -211,4 +210,3 @@ void S21_FreePoints(point** points, const data* obj_data) {
   }
   free(points);
 }
-// int main() {}
