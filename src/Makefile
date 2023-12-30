@@ -2,7 +2,7 @@ CFLAGS = -Wall -Werror -Wextra -std=c11 -pedantic
 LFLAGS = -lcheck
 CC = gcc
 
-INSTALL_DIR := build
+INSTALL_DIR := ../build
 
 .PHONY: clean all rebuild install uninstall dvi dist
 
@@ -23,25 +23,23 @@ endif
 
 all: tests
 
-# install:
-# 	mkdir -p $(INSTALL_DIR)
-# 	cd $(INSTALL_DIR) && qmake6 ../calc_qt/calc_qt_qmake/calc_qt_qmake.pro && make
-# 	cp $(INSTALL_DIR)/calc_qt_qmake .
-# 	mv calc_qt_qmake calculator
+install: clean lib3d_viewer.a
+	mkdir -p $(INSTALL_DIR)
+	cd $(INSTALL_DIR) && cmake ../src/Frontend && make
 
-# uninstall:
-# 	rm -rf $(INSTALL_DIR)
-# 	rm calculator
+uninstall:
+	rm -rf $(INSTALL_DIR)
 
-# dvi:
-# 	doxygen Doxyfile
-# 	open html/index.html
+dvi:
+	doxygen Doxyfile
+	open html/index.html
 
-# dist:
-# 	mkdir -p ../calc_dist
-# 	cp -r ../src ../calc_dist
-# 	tar --totals -czvf calc_dist.tar.gz ../calc_dist
-# 	rm -rf ../calc_dist
+dist: install
+	mkdir -p ../3dviewer_dist
+	cp -r ../src ../3dviewer_dist
+	cp -r ../build ../3dviewer_dist
+	tar --totals -czvf 3dviewer.tar.gz ../3dviewer_dist
+	rm -rf ../3dviewer_dist
 
 tests: $(TEST_OBJECTS) $(OBJECTS)
 	$(CC) $(OBJECTS) c_files/3d_viewer_tests.c $(LFLAGS) -o test
@@ -54,14 +52,15 @@ gcov_report: clean add_gcov_flags tests
 	open gcov_report/index.html
 
 lib3d_viewer.a: $(OBJECTS)
+	mkdir -p $(INSTALL_DIR)
 	ar -rcs $@  $(OBJECTS)
-	cp ./lib3d_viewer.a ../build
+	cp ./lib3d_viewer.a $(INSTALL_DIR)
 
 add_gcov_flags:
 	$(eval CFLAGS += --coverage)
 	$(eval LFLAGS += -lgcov)
 
 clean:
-	rm -rf *.o c_files/*.o test gcov_report c_files/*.gcda c_files/*.gcno coverage.info *.a a.out *.tar latex html calculator_build calculator
+	rm -rf *.o c_files/*.o test gcov_report c_files/*.gcda c_files/*.gcno coverage.info *.a a.out *.tar latex html $(INSTALL_DIR) ../3dviewer_dist 3dviewer.tar.gz
 
 rebuild: clean all

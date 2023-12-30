@@ -236,7 +236,6 @@ void MainWindow::on_gifButton_clicked() {
 }
 
 void MainWindow::CaptureFrames() {
-  qDebug() << gif_list.size();
   auto geom = ui->oglwidget->grab();
   auto image = geom.toImage();
   gif_list.append(image.scaled(WIDTH, HEIGHT, Qt::KeepAspectRatio,

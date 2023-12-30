@@ -58,15 +58,6 @@ START_TEST(test_parser_1) {
     }
   }
 
-  // for (int i = 0; i < cube_data.count_of_facets; ++i) {
-  //   for (int j = 0; j < cube_data.polygons[i].numbers_of_vertexes_in_facets;
-  //   ++j) {
-  //     printf("%.2f, %.2f, %.2f   ", combined_data[i][j].ox,
-  //     combined_data[i][j].oy, combined_data[i][j].oz);
-  //   }
-  //   printf("\n");
-  // }
-
   S21_FreePoints(combined_data, &cube_data);
   S21_RemoveMatrix(&cube_data.matrix_3d);
   S21_RemovePolygons(cube_data.polygons, cube_data.count_of_facets);
@@ -171,28 +162,6 @@ START_TEST(nulls) {
   ck_assert_int_eq(status, ERROR);
 }
 
-// START_TEST(test_parser_2) {
-//   char *file_name = "test_objs/capybara.obj";
-//   data cube_data = {0};
-//   S21_PrepareData(file_name, &cube_data);
-//   point **combined_data = S21_CombineFacetsWithVertexes(&cube_data);
-
-//   int facet_line = 628;
-//   for (int i = 0; i < cube_data.count_of_facets; ++i, ++facet_line) {
-//     printf("%d ", facet_line);
-//     for (int j = 0; j < cube_data.polygons[i].numbers_of_vertexes_in_facets;
-//     ++j) {
-//       printf("%5.2f %5.2f %5.2f    ", combined_data[i][j].ox,
-//       combined_data[i][j].oy, combined_data[i][j].oz);
-//     }
-//     printf("\n");
-//   }
-
-//   S21_FreePoints(combined_data, &cube_data);
-//   S21_RemoveMatrix(&cube_data.matrix_3d);
-//   S21_RemovePolygons(cube_data.polygons, cube_data.count_of_facets);
-// }
-
 int main(void) {
   Suite *s = suite_create("Core");
   SRunner *runner = srunner_create(s);
@@ -200,7 +169,6 @@ int main(void) {
 
   int no_failed = 0;
   tcase_add_test(tc_core, test_parser_1);
-  // tcase_add_test(tc_core, test_parser_2);f
   tcase_add_test(tc_core, test_affine_rotate);
   tcase_add_test(tc_core, test_affine_translate);
   tcase_add_test(tc_core, test_affine_scale);
